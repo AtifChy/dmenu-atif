@@ -22,3 +22,13 @@ Afterwards enter the following command to build and install dmenu
 Running dmenu
 -------------
 See the man page for details.
+
+Installed patches
+-----------------
+1. border
+2. highlight
+3. lineheight
+4. mousesupport
+5. navhistory
+6. numbers
+7. xyw
