@@ -5,8 +5,10 @@ static int topbar = 1;                      /* -b  option; if 0, dmenu appears a
 static double opacity = 1.0;                /* -o  option; defines alpha translucency        */
 /* -fn option overrides fonts[0]; default X11 font or font set */
 static const char *fonts[] = {
-	"monospace:size=10"
+	"Fira Code Medium:size=10:antialias=true:autohint=true",
+	"Noto Color Emoji:size=10:antialias=true:autohint=true"
 };
+
 static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
 
 static const unsigned int baralpha = 0xd0;
@@ -28,6 +30,8 @@ static const char *colors[SchemeLast][2] = {
 };
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */
 static unsigned int lines      = 0;
+static unsigned int maxhist    = 64;
+static int histnodup           = 1;	    /* if 0, record repeated histories */
 static unsigned int lineheight = 0;         /* -h option; minimum height of a menu line     */
 
 /*
