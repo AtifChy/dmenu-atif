@@ -6,7 +6,7 @@ dmenu is an efficient dynamic menu for X.
 Requirements
 ------------
 In order to build dmenu you need the Xlib header files.
-
+Must install libxft-bgra https://aur.archlinux.org/packages/libxft-bgra/
 
 Installation
 ------------
