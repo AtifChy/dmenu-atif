@@ -38,9 +38,9 @@ struct item {
 	int out, hp;
 };
 
-static char numbers[NUMBERSBUFSIZE] = "";
 static char **hpitems = NULL;
 static int hplength = 0;
+static char numbers[NUMBERSBUFSIZE] = "";
 static char text[BUFSIZ] = "";
 static char *embed;
 static int bh, mw, mh;
@@ -70,8 +70,9 @@ static Clr *scheme[SchemeLast];
 
 #include "config.h"
 
-static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
-static char *(*fstrstr)(const char *, const char *) = strstr;
+static char * cistrstr(const char *s, const char *sub);
+static int (*fstrncmp)(const char *, const char *, size_t) = strncasecmp;
+static char *(*fstrstr)(const char *, const char *) = cistrstr;
 
 static char**
 tokenize(char *source, const char *delim, int *llen) {
@@ -122,7 +123,7 @@ calcoffsets(void)
 	int i, n;
 
 	if (lines > 0)
-		n = lines * bh;
+		n = lines * columns * bh;
 	else
 		n = mw - (promptw + inputw + TEXTW("<") + TEXTW(">"));
 	/* calculate which items will begin the next page and previous page */
@@ -263,9 +264,15 @@ drawmenu(void)
 
 	recalculatenumbers();
 	if (lines > 0) {
-		/* draw vertical list */
-		for (item = curr; item != next; item = item->right)
-			drawitem(item, 0, y += bh, mw);
+		/* draw grid */
+		int i = 0;
+		for (item = curr; item != next; item = item->right, i++)
+			drawitem(
+				item,
+				0 + ((i / lines) *  ((mw) / columns)),
+				y + (((i % lines) + 1) * bh),
+				(mw) / columns
+			);
 	} else if (matches) {
 		/* draw horizontal list */
 		x += inputw;
@@ -983,10 +990,10 @@ setup(void)
 static void
 usage(void)
 {
-	fputs("usage: dmenu [-bfiv] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-bfiv] [-l lines] [-g columns] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n"
-	      "             [-h height] [-hb color] [-hf color] [-hp items] [ -o opacity]\n"
-	      "             [-x xoffset] [-y yoffset] [-w width]\n", stderr);
+	      "             [ -o opacity] [-hb color] [-hf color] [-hp items] [-h height]\n"
+	      " 	     [-x xoffset] [-y yoffset] [-w width]\n",stderr);
 	exit(1);
 }
 
@@ -1007,22 +1014,26 @@ main(int argc, char *argv[])
 			fast = 1;
 		else if (!strcmp(argv[i], "-c"))   /* centers dmenu on screen */
 			centered = 1;
-		else if (!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
-			fstrncmp = strncasecmp;
-			fstrstr = cistrstr;
+		else if (!strcmp(argv[i], "-s")) { /* case-sensitive item matching */
+			fstrncmp = strncmp;
+			fstrstr = strstr;
 		} else if (i + 1 == argc)
 			usage();
 		/* these options take one argument */
-		else if (!strcmp(argv[i], "-l"))   /* number of lines in vertical list */
+		else if (!strcmp(argv[i], "-g")) {   /* number of columns in grid */
+			columns = atoi(argv[++i]);
+			if (lines == 0) lines = 1;
+		} else if (!strcmp(argv[i], "-l")) { /* number of lines in grid */
 			lines = atoi(argv[++i]);
+			if (columns == 0) columns = 1;
+		} else if (!strcmp(argv[i], "-m"))
+			mon = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-x"))   /* window x offset */
 			dmx = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-y"))   /* window y offset (from bottom up if -b) */
 			dmy = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-w"))   /* make dmenu this wide */
 			dmw = atoi(argv[++i]);
-		else if (!strcmp(argv[i], "-m"))
-			mon = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-o"))  /* opacity */
 			opacity = atof(argv[++i]);
 		else if (!strcmp(argv[i], "-p"))   /* adds prompt to left of input field */
