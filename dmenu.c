@@ -992,7 +992,7 @@ usage(void)
 {
 	fputs("usage: dmenu [-bfiv] [-l lines] [-g columns] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n"
-	      "             [ -o opacity] [-hb color] [-hf color] [-hp items] [-h height]\n"
+	      "             [-o opacity] [-hb color] [-hf color] [-hp items] [-h height]\n"
 	      " 	     [-x xoffset] [-y yoffset] [-w width]\n",stderr);
 	exit(1);
 }
